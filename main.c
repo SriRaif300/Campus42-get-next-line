@@ -1,29 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cgaratej <cgaratej@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/08 19:03:21 by cgaratej          #+#    #+#             */
-/*   Updated: 2024/02/13 13:04:36 by cgaratej         ###   ########.fr       */
+/*   Created: 2024/02/13 12:27:33 by cgaratej          #+#    #+#             */
+/*   Updated: 2024/02/13 12:29:46 by cgaratej         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#include "get_next_line.h"
+#include <fcntl.h>
+#include <stdio.h>
 
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 42
-# endif
+int	main(void)
+{
+	int		fd;
+	char	*line;
 
-# include <unistd.h>
-# include <stdlib.h>
-
-char	*get_next_line(int fd);
-int		ft_strlen(const char *str);
-char	*ft_strchr(const char *s, int c);
-char	*ft_strjoin(char const *s1, char const *s2);
-char	*ft_create_start(char *start, char *buffer);
-
-#endif
+	fd = open("text", O_RDONLY);
+	while (1)
+	{
+		line = get_next_line(fd);
+		if (line == NULL)
+			break ;
+		printf("%s", line);
+		free(line);
+	}
+	return (0);
+}
