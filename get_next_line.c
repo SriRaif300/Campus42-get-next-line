@@ -6,7 +6,7 @@
 /*   By: cgaratej <cgaratej@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 19:01:13 by cgaratej          #+#    #+#             */
-/*   Updated: 2024/02/13 13:55:02 by cgaratej         ###   ########.fr       */
+/*   Updated: 2024/02/15 12:45:34 by cgaratej         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static char	*ft_read_line(char *str)
 	if (!str || !str[0])
 		return (0);
 	i = 0;
-	while (str && str[i] != '\n')
+	while (str[i] && str[i] != '\n')
 		i++;
 	if (str[i] == '\n')
 		i++;
@@ -28,46 +28,86 @@ static char	*ft_read_line(char *str)
 	if (!line)
 		return (0);
 	i = 0;
-	while (str && str[i] != '\n')
+	while (str[i] && str[i] != '\n')
 	{
 		line[i] = str[i];
 		i++;
 	}
-	if (line[i] == '\n')
+	if (str[i] == '\n')
 		line[i++] = '\n';
 	line[i] = '\0';
 	return (line);
 }
 
-char	*ft_move_start(char *str)
+static char	*ft_move_start(char *str)
 {
+	char	*buff;
+	int		i;
+	int		j;
+
+	i = 0;
+	while (str[i] && str[i] != '\n')
+		i++;
+	if (str[i] == '\0')
+		return (free(str), NULL);
+	if (str[i] == '\n')
+		i++;
+	buff = malloc(1 + ft_strlen(str) - i);
+	if (!buff)
+		return (free(str), NULL);
+	j = 0;
+	while (str[i + j])
+	{
+		buff[j] = str[i + j];
+		j++;
+	}
+	buff[j] = '\0';
+	free(str);
+	return (buff);
 }
 
-char	*get_next_line(int fd)
+static char	*read_document(int fd, char *start_str)
 {
-	char		*tmp;
-	int			fd_read;
-	static char	*start_str;
+	int		fd_read;
+	char	*tmp;
 
-	if (!fd || BUFFER_SIZE <= 0)
-		return (0);
-	fd_read = 1;
 	tmp = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!tmp)
-		return (0);
+		return (NULL);
+	fd_read = 1;
 	while (!(ft_strchr(start_str, '\n')) && fd_read != 0)
 	{
 		fd_read = read(fd, tmp, BUFFER_SIZE);
 		if (fd_read == -1)
 		{
 			free(tmp);
-			return (0);
+			return (freeoffree(&start_str));
 		}
+		if (fd_read == 0 && !start_str)
+			return (free(tmp), NULL);
 		tmp[fd_read] = '\0';
 		start_str = ft_create_start(start_str, tmp);
+		if (!start_str)
+			return (free(tmp), freeoffree(&start_str));
 	}
 	free(tmp);
-	tmp = ft_read_line(start_str);
+	return (start_str);
+}
+
+char	*get_next_line(int fd)
+{
+	char		*conten;
+	static char	*start_str;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (0);
+	if (!start_str || !ft_strchr(start_str, '\n'))
+		start_str = read_document(fd, start_str);
+	if (!start_str)
+		return (NULL);
+	conten = ft_read_line(start_str);
+	if (!conten)
+		return (freeoffree(&start_str));
 	start_str = ft_move_start(start_str);
-	return (tmp);
+	return (conten);
 }
