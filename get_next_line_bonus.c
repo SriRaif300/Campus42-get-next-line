@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cgaratej <cgaratej@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 19:01:13 by cgaratej          #+#    #+#             */
-/*   Updated: 2024/02/16 11:34:58 by cgaratej         ###   ########.fr       */
+/*   Updated: 2024/02/16 11:36:13 by cgaratej         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*ft_read_line(char *str)
 {
@@ -97,17 +97,17 @@ static char	*read_document(int fd, char *start_str)
 char	*get_next_line(int fd)
 {
 	char		*conten;
-	static char	*start_str;
+	static char	*start_str[OPEN_MAX];
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (0);
-	if (!start_str || !ft_strchr(start_str, '\n'))
-		start_str = read_document(fd, start_str);
-	if (!start_str)
+	if (!start_str[fd] || !ft_strchr(start_str[fd], '\n'))
+		start_str[fd] = read_document(fd, start_str[fd]);
+	if (!start_str[fd])
 		return (NULL);
-	conten = ft_read_line(start_str);
+	conten = ft_read_line(start_str[fd]);
 	if (!conten)
-		return (freeoffree(&start_str));
-	start_str = ft_move_start(start_str);
+		return (freeoffree(&start_str[fd]));
+	start_str[fd] = ft_move_start(start_str[fd]);
 	return (conten);
 }
